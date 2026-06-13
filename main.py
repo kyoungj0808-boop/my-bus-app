@@ -16,8 +16,8 @@ if SYSTEM_MODE == 'LOCKED':
     st.title("🚧 시스템 정비 중")
 elif SYSTEM_MODE == 'SEOUL_PILOT':
     st.title("🚌 서울 기사님 전용 테스트 모드")
-    password = st.text_input("기사님 인증키를 입력하십시오", type="password")
-    if st.button("현장 업무 인증"):
+    password = st.text_input("기사님의 인증키를 입력하십시오", type="password")
+    if st.button("인증 확인"):
         if password == "1234":
             st.success("데이터 접근 승인")
             bus_number = st.text_input("버스 번호:")
