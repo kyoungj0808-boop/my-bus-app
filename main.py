@@ -32,12 +32,11 @@ else:
         index=['LOCKED', 'SEOUL', 'BUSAN'].index(st.session_state['system_mode'])
     )
     
-    # 관리자 전용 특수 통계 (기사님들은 절대 볼 수 없음)
+    # 관리자 전용 특수 통계
     st.sidebar.markdown("---")
     st.sidebar.subheader("📈 마스터 시스템 로그")
     st.sidebar.write("현재 접속자: 1명 (기사 1)")
     st.sidebar.write("시스템 부하: 0.12%")
-    st.sidebar.warning("마스터 코드로 시스템 강제 종료 가능")
 
 # [메인 화면: 지역별 필터링]
 SYSTEM_MODE = st.session_state['system_mode']
