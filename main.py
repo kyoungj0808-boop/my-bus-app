@@ -28,10 +28,10 @@ elif SYSTEM_MODE == 'BUSAN_LIVE':
     if st.button("정산 확인"):
         st.success("부산 데이터 처리 완료!")
 
-# [하단부 - 폰트 사이즈 업]
+# [하단부 - 폰트 사이즈 0.95em 조정]
 st.markdown("---")
 st.markdown("""
-<div style='color: gray; font-size: 1.1em;'>
+<div style='color: gray; font-size: 0.95em;'>
 제작 과정 및 문의<br>
 📸 @devjin_747<br>
 📩 kyjin0808@naver.com
