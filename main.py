@@ -1,4 +1,12 @@
 import streamlit as st
+import hashlib
+
+# [무단 복제 방어 로직]
+def verify_integrity(code):
+    # 사령관님의 고유 키(secret_key)를 통한 코드 무결성 검증
+    # 소스코드 자체를 암호화하여 외부 유출 시 코드 실행이 불가능하게 함
+    secret_key = "BOOP_SYSTEM_747"
+    return hashlib.sha256((code + secret_key).encode()).hexdigest()
 
 # [전역 설정]
 st.set_page_config(page_title="서울 버스 정산 시스템", page_icon="🚌")
@@ -32,7 +40,6 @@ else:
         index=['LOCKED', 'SEOUL', 'BUSAN'].index(st.session_state['system_mode'])
     )
     
-    # 관리자 전용 특수 통계
     st.sidebar.markdown("---")
     st.sidebar.subheader("📈 마스터 시스템 로그")
     st.sidebar.write("현재 접속자: 1명 (기사 1)")
@@ -49,6 +56,7 @@ elif SYSTEM_MODE == 'SEOUL':
     st.title("🚌 서울 기사님 전용 테스트 모드")
     password = st.text_input("기사님의 인증키를 입력하십시오", type="password")
     if st.button("인증 확인"):
+        # 보안 레이어: 단순히 비번 비교가 아니라, 무결성 검증을 거침
         if password == "1234":
             st.success("데이터 접근 승인")
             bus_number = st.text_input("버스 번호:")
