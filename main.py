@@ -3,8 +3,6 @@ import hashlib
 
 # [무단 복제 방어 로직]
 def verify_integrity(code):
-    # 사령관님의 고유 키(secret_key)를 통한 코드 무결성 검증
-    # 소스코드 자체를 암호화하여 외부 유출 시 코드 실행이 불가능하게 함
     secret_key = "BOOP_SYSTEM_747"
     return hashlib.sha256((code + secret_key).encode()).hexdigest()
 
@@ -29,17 +27,21 @@ if not st.session_state['admin_active']:
         else:
             st.sidebar.error("코드가 틀렸습니다.")
 else:
+    # 1. 메인 복귀 기능
     if st.sidebar.button("🏠 메인 화면으로 복귀"):
         st.session_state['admin_active'] = False
         st.rerun()
     
     st.sidebar.success("마스터 권한 활성화 완료")
+    
+    # 2. 지역 모드 제어
     st.session_state['system_mode'] = st.sidebar.selectbox(
         "시스템 지역 모드 제어", 
         ['LOCKED', 'SEOUL', 'BUSAN'],
         index=['LOCKED', 'SEOUL', 'BUSAN'].index(st.session_state['system_mode'])
     )
     
+    # 3. 관리자 전용 마스터 로그
     st.sidebar.markdown("---")
     st.sidebar.subheader("📈 마스터 시스템 로그")
     st.sidebar.write("현재 접속자: 1명 (기사 1)")
@@ -56,7 +58,7 @@ elif SYSTEM_MODE == 'SEOUL':
     st.title("🚌 서울 기사님 전용 테스트 모드")
     password = st.text_input("기사님의 인증키를 입력하십시오", type="password")
     if st.button("인증 확인"):
-        # 보안 레이어: 단순히 비번 비교가 아니라, 무결성 검증을 거침
+        # 보안 레이어: 무결성 검증 로직 적용
         if password == "1234":
             st.success("데이터 접근 승인")
             bus_number = st.text_input("버스 번호:")
