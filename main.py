@@ -14,7 +14,7 @@ if SYSTEM_MODE == 'LOCKED':
     st.title("🚧 시스템 정비 중")
 elif SYSTEM_MODE == 'SEOUL_PILOT':
     st.title("🚌 서울 기사님 전용 테스트 모드")
-    password = st.text_input("서울 기사님 인증키를 입력하십시오:", type="password")
+    password = st.text_input("서울 기사님 인증키를 입력하십시오", type="password")
     if password == "mybus747":
         st.success("접근 허용")
         bus_number = st.text_input("버스 번호:")
@@ -30,8 +30,10 @@ elif SYSTEM_MODE == 'BUSAN_LIVE':
 
 # [하단부 - 감성 레이아웃]
 st.markdown("---")
-st.caption("""
-제작 과정 및 문의
-📸 @devjin_747
+st.markdown("""
+<div style='color: gray; font-size: 0.8em;'>
+제작 과정 및 문의<br>
+📸 @devjin_747<br>
 📩 kyjin0808@naver.com
-""")
+</div>
+""", unsafe_allow_html=True)
