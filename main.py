@@ -7,31 +7,39 @@ import pandas as pd
 SECRET_KEY = os.getenv("APP_SECRET_KEY", "BOOP_SYSTEM_747")
 ADMIN_CODE = os.getenv("ADMIN_MASTER_CODE", "3934")
 
-# [버스 데이터베이스 (사령관님 데이터 적출 후 이 딕셔너리에 추가/수정)]
-BUS_DATA = {
-    "503": {"first": "04:15", "last": "22:20", "route": "광명공영차고지기점-서울역버스환승센터", "info": "(48/32.5km)"},
-    "101": {"first": "05:00", "last": "23:00", "route": "화영운수차고지-석수역", "info": "(41/14km)"}
-}
+# [버스 정보 조회 함수: CSV 데이터 기반]
+def get_bus_info(bus_num):
+    # 같은 폴더에 있는 bus_data.csv를 로드하여 입력된 버스 번호 탐색
+    try:
+        # 데이터가 1.4GB더라도 필요한 노선만 검색하므로 매우 빠름
+        df = pd.read_csv("bus_data.csv", dtype={'bus_no': str})
+        result = df[df['bus_no'] == bus_num]
+        if not result.empty:
+            return result.iloc[0]
+    except Exception:
+        return None
+    return None
 
 # [기사님 전용 대시보드 함수]
 def show_driver_dashboard():
     st.success("데이터 접근 승인 완료: 운행 모드 가동")
     
-    # 버스 정보 조회 모듈
-    bus_number = st.text_input("버스 번호 입력 (예: 503, 101):")
+    # 사령관님 지정 양식 기반 출력 모듈
+    bus_number = st.text_input("버스 번호 입력:")
     if bus_number:
-        if bus_number in BUS_DATA:
-            b = BUS_DATA[bus_number]
+        data = get_bus_info(bus_number)
+        if data is not None:
+            # 출력 양식: 사령관님의 요구사항 100% 반영
             st.info(f"🚌 {bus_number}번 버스 노선 정보")
-            st.write(f"첫차시간: {b['first']}")
-            st.write(f"막차시간: {b['last']}")
-            st.write(f"{b['route']} {b['info']}")
+            st.write(f"기점-종점: {data['route']}")
+            st.write(f"버스거리/정류장수: {data['info']}")
+            st.write(f"첫차시간: {data['first']}")
+            st.write(f"막차시간: {data['last']}")
         else:
-            st.warning("데이터베이스에 없는 노선입니다.")
+            st.warning("등록되지 않은 노선 번호입니다.")
 
     st.markdown("---")
     
-    # 정산 모듈
     if st.button("정산 전송"):
         st.balloons()
         st.write("✅ 정산 데이터가 서버에 기록되었습니다.")
@@ -52,13 +60,13 @@ def show_driver_dashboard():
         st.session_state['bus_auth'] = False
         st.rerun()
 
-# [전역 설정 및 세션 초기화]
+# [전역 설정 및 초기화]
 st.set_page_config(page_title="통합 버스 정산 시스템", page_icon="🚌")
 if 'admin_active' not in st.session_state: st.session_state['admin_active'] = False
 if 'system_mode' not in st.session_state: st.session_state['system_mode'] = 'HOME'
 if 'bus_auth' not in st.session_state: st.session_state['bus_auth'] = False
 
-# [사이드바: 관리자 서버 (숨김/토글)]
+# [사이드바: 관리자 서버 (숨김 처리)]
 with st.sidebar:
     st.title("⚙️ 관리자 서버")
     if not st.session_state['admin_active']:
@@ -68,26 +76,19 @@ with st.sidebar:
                 st.session_state['admin_active'] = True
                 st.rerun()
     else:
-        st.success("관리자 권한 활성화")
+        st.success("권한 활성화")
         if st.button("관리자 모드 종료"):
             st.session_state['admin_active'] = False
             st.rerun()
-        st.session_state['system_mode'] = st.selectbox("지역 제어", ['HOME', 'LOCKED', 'SEOUL', 'BUSAN'])
+        st.session_state['system_mode'] = st.selectbox("지역 제어", ['HOME', 'SEOUL', 'BUSAN'])
 
-# [메인 화면 로직]
+# [메인 로직]
 SYSTEM_MODE = st.session_state['system_mode']
-
 if SYSTEM_MODE == 'HOME':
     st.title("🚌 통합 버스 정산 시스템")
-    st.write("서비스 이용을 위해 모드를 선택하십시오.")
     if st.button("서울 기사님 모드 입장"):
         st.session_state['system_mode'] = 'SEOUL'
         st.rerun()
-
-elif SYSTEM_MODE == 'LOCKED':
-    st.title("🚧 시스템 정비 중")
-    st.error("보안 정책에 의해 차단됨.")
-
 elif SYSTEM_MODE == 'SEOUL':
     if not st.session_state['bus_auth']:
         st.title("🚌 서울 기사님 전용 테스트")
@@ -96,15 +97,8 @@ elif SYSTEM_MODE == 'SEOUL':
             if password == "1234":
                 st.session_state['bus_auth'] = True
                 st.rerun()
-            else:
-                st.warning("인증 오류")
     else:
         show_driver_dashboard()
 
-elif SYSTEM_MODE == 'BUSAN':
-    st.title("🚌 부산 버스 정산 시스템")
-    st.write("부산 지역 데이터 처리 모드 활성화됨.")
-
-# [하단부]
 st.markdown("---")
 st.markdown("<div style='color: gray; font-size: 0.95em;'>🔍 @devjin_747 | 📩 kyjin0808@naver.com</div>", unsafe_allow_html=True)
