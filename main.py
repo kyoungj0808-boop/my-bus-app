@@ -9,42 +9,46 @@ ADMIN_CODE = os.getenv("ADMIN_MASTER_CODE", "3934")
 
 # [버스 정보 조회 함수: CSV 데이터 기반]
 def get_bus_info(bus_num):
-    # 같은 폴더에 있는 bus_data.csv를 로드하여 입력된 버스 번호 탐색
     try:
-        # 데이터가 1.4GB더라도 필요한 노선만 검색하므로 매우 빠름
+        # 파일이 없으면 초기값 반환
+        if not os.path.exists("bus_data.csv"):
+            return None
+            
+        # CSV 로드
         df = pd.read_csv("bus_data.csv", dtype={'bus_no': str})
+        
+        # 입력받은 버스번호(bus_num)와 일치하는 데이터 검색
+        # 데이터프레임의 bus_no 컬럼과 비교
         result = df[df['bus_no'] == bus_num]
+        
         if not result.empty:
             return result.iloc[0]
-    except Exception:
+    except Exception as e:
         return None
     return None
 
-# [기사님 전용 대시보드 함수]
+# [기사님 전용 대시보드]
 def show_driver_dashboard():
     st.success("데이터 접근 승인 완료: 운행 모드 가동")
     
-    # 사령관님 지정 양식 기반 출력 모듈
-    bus_number = st.text_input("버스 번호 입력:")
+    bus_number = st.text_input("버스 번호 입력 (예: 503):")
     if bus_number:
         data = get_bus_info(bus_number)
         if data is not None:
-            # 출력 양식: 사령관님의 요구사항 100% 반영
             st.info(f"🚌 {bus_number}번 버스 노선 정보")
             st.write(f"기점-종점: {data['route']}")
             st.write(f"버스거리/정류장수: {data['info']}")
             st.write(f"첫차시간: {data['first']}")
             st.write(f"막차시간: {data['last']}")
         else:
-            st.warning("등록되지 않은 노선 번호입니다.")
+            st.warning("등록되지 않은 노선번호이거나 데이터파일을 읽을 수 없습니다.")
 
     st.markdown("---")
-    
     if st.button("정산 전송"):
         st.balloons()
         st.write("✅ 정산 데이터가 서버에 기록되었습니다.")
     
-    # 전국 확장 로드맵
+    # [로드맵]
     st.subheader("🗓️ 전국 단위 확장 로드맵")
     roadmap_data = {
         "~6/16일": "무료배포 종료(월 요금제 도입)",
@@ -60,13 +64,12 @@ def show_driver_dashboard():
         st.session_state['bus_auth'] = False
         st.rerun()
 
-# [전역 설정 및 초기화]
+# [기본 로직]
 st.set_page_config(page_title="통합 버스 정산 시스템", page_icon="🚌")
 if 'admin_active' not in st.session_state: st.session_state['admin_active'] = False
 if 'system_mode' not in st.session_state: st.session_state['system_mode'] = 'HOME'
 if 'bus_auth' not in st.session_state: st.session_state['bus_auth'] = False
 
-# [사이드바: 관리자 서버 (숨김 처리)]
 with st.sidebar:
     st.title("⚙️ 관리자 서버")
     if not st.session_state['admin_active']:
@@ -82,7 +85,6 @@ with st.sidebar:
             st.rerun()
         st.session_state['system_mode'] = st.selectbox("지역 제어", ['HOME', 'SEOUL', 'BUSAN'])
 
-# [메인 로직]
 SYSTEM_MODE = st.session_state['system_mode']
 if SYSTEM_MODE == 'HOME':
     st.title("🚌 통합 버스 정산 시스템")
