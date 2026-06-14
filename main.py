@@ -36,6 +36,10 @@ def show_dashboard():
         st.session_state['bus_auth'] = False
         st.session_state['system_mode'] = 'HOME'
         st.rerun()
+    
+    # 하단 연락처 정보 복구
+    st.markdown("---")
+    st.markdown("<div style='color: gray; font-size: 0.95em;'>🔍 @devjin_747 | 📩 kyjin0808@naver.com</div>", unsafe_allow_html=True)
 
 # [메인 제어 로직]
 if st.session_state['system_mode'] == 'HOME':
