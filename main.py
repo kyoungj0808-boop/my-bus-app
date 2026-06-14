@@ -11,7 +11,7 @@ ADMIN_CODE = os.getenv("ADMIN_MASTER_CODE", "3934")
 def verify_integrity(code):
     return hashlib.sha256((code + SECRET_KEY).encode()).hexdigest()
 
-# [기사님 전용 대시보드 함수]
+# [함수 1: 기사님 전용 대시보드]
 def show_driver_dashboard():
     st.success("데이터 접근 승인 완료: 운행 모드 가동")
     bus_number = st.text_input("버스 번호 입력:")
@@ -40,7 +40,7 @@ st.set_page_config(page_title="통합 버스 정산 시스템", page_icon="🚌"
 
 # 세션 상태 초기화
 if 'admin_active' not in st.session_state: st.session_state['admin_active'] = False
-if 'system_mode' not in st.session_state: st.session_state['system_mode'] = 'SEOUL'
+if 'system_mode' not in st.session_state: st.session_state['system_mode'] = 'HOME'
 if 'bus_auth' not in st.session_state: st.session_state['bus_auth'] = False
 
 # [사이드바: 관리자 서버 통제실]
@@ -55,18 +55,25 @@ else:
     if st.sidebar.button("🏠 관리자 모드 종료"):
         st.session_state['admin_active'] = False
         st.rerun()
-    st.session_state['system_mode'] = st.sidebar.selectbox("지역 모드 제어", ['LOCKED', 'SEOUL', 'BUSAN'])
+    st.session_state['system_mode'] = st.sidebar.selectbox("지역 모드 제어", ['HOME', 'LOCKED', 'SEOUL', 'BUSAN'])
 
-# [메인 화면]
+# [메인 화면 로직]
 SYSTEM_MODE = st.session_state['system_mode']
 
-if SYSTEM_MODE == 'LOCKED':
+if SYSTEM_MODE == 'HOME':
+    st.title("🚌 통합 버스 정산 시스템")
+    st.write("원하시는 모드를 선택하여 접속하십시오.")
+    if st.button("서울 기사님 모드 입장"):
+        st.session_state['system_mode'] = 'SEOUL'
+        st.rerun()
+
+elif SYSTEM_MODE == 'LOCKED':
     st.title("🚧 시스템 정비 중")
     st.error("보안 정책에 의해 차단됨.")
 
 elif SYSTEM_MODE == 'SEOUL':
-    st.title("🚌 서울 기사님 전용 테스트 모드")
     if not st.session_state['bus_auth']:
+        st.title("🚌 서울 기사님 전용 테스트 모드")
         password = st.text_input("기사님 인증키 입력", type="password")
         if st.button("인증 확인"):
             if password == "1234":
