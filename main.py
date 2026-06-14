@@ -47,4 +47,10 @@ if st.button("조회"):
     else:
         st.warning("등록된 노선을 찾을 수 없습니다.")
 
-st.markdown("🔍 @devjin_747 | 📩 kyjin0808@naver.com")
+# ... (기존 조회 로직 생략) ...
+    else:
+        st.warning("등록된 노선을 찾을 수 없습니다.")
+
+# 여기서부터는 어떤 상황(조회 성공/실패)에도 무조건 나타납니다.
+st.markdown("---")
+st.markdown("<div style='text-align: center; color: gray;'>🔍 @devjin_747 | 📩 kyjin0808@naver.com</div>", unsafe_allow_html=True)
