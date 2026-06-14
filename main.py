@@ -25,12 +25,12 @@ with st.sidebar:
         if st.button("🚫 배포 종료(잠금)"): st.session_state.locked = True; st.rerun()
         if st.button("✅ 배포 재개(해제)"): st.session_state.locked = False; st.rerun()
 
-# 3. 서비스 잠금 시 차단
+# 3. 서비스 잠금 처리
 if st.session_state.locked and not st.session_state.admin:
     st.title("🚧 서비스 점검 중")
     st.stop()
 
-# 4. 인스타 감성 UI 및 기능
+# 4. 메인 화면
 st.title("🚌 통합 버스 정산 시스템")
 passenger_type = st.radio("요금 기준:", ('어린이', '청소년', '성인'), index=2, horizontal=True)
 bus_no = st.text_input("버스 번호", value="402")
@@ -47,10 +47,6 @@ if st.button("조회"):
     else:
         st.warning("등록된 노선을 찾을 수 없습니다.")
 
-# ... (기존 조회 로직 생략) ...
-    else:
-        st.warning("등록된 노선을 찾을 수 없습니다.")
-
-# 여기서부터는 어떤 상황(조회 성공/실패)에도 무조건 나타납니다.
+# 하단 고정 문구
 st.markdown("---")
 st.markdown("<div style='text-align: center; color: gray;'>🔍 @devjin_747 | 📩 kyjin0808@naver.com</div>", unsafe_allow_html=True)
