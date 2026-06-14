@@ -6,6 +6,9 @@ st.set_page_config(page_title="버스 정보 시스템", page_icon="🚌")
 # 데이터 로드
 df = pd.read_csv("bus_data.csv", dtype={'bus_no': str})
 
+# 요금 체계 정의 (고정값)
+FARE_MAP = {'어린이': 550, '청소년': 900, '성인': 1500}
+
 # 관리자 로직
 if 'admin' not in st.session_state: st.session_state.admin = False
 with st.sidebar:
@@ -19,7 +22,7 @@ with st.sidebar:
 st.title("🚌 통합 버스 정산 시스템")
 st.markdown("---")
 
-# [삽입 기능] 승객 유형 선택 UI
+# 승객 유형 선택 UI
 st.markdown("### 🚌 승객 유형을 선택하세요")
 passenger_type = st.radio(
     "요금 계산 기준:",
@@ -31,7 +34,7 @@ st.session_state['passenger_type'] = passenger_type
 st.markdown("---")
 
 # 조회 로직
-bus_no = st.text_input("버스 번호 입력 (예: 5714)")
+bus_no = st.text_input("버스 번호 입력 (예: 151)")
 search = st.button("조회")
 
 if search or bus_no:
@@ -44,9 +47,16 @@ if search or bus_no:
         **막차시간:** {d['last']}  
         **{d['route']}**
         """)
+        
+        # 상세 정보 출력
         st.caption(f"상세 정보: {d['info']}")
-        # 선택된 승객 유형 표시 (로직 확장 대비용)
-        st.info(f"현재 선택된 유형: **{st.session_state['passenger_type']}**")
+        
+        # 요금 출력 로직 (여기가 추가된 핵심 기능입니다)
+        current_fare = FARE_MAP[passenger_type]
+        st.markdown("---")
+        st.subheader(f"💰 {passenger_type} 요금: {current_fare:,}원")
+        st.markdown("---")
+        
     else:
         st.warning("등록되지 않은 노선번호입니다.")
 
