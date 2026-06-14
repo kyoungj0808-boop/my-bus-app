@@ -5,10 +5,10 @@ import io
 # 1. 페이지 설정
 st.set_page_config(page_title="버스 정보 시스템", page_icon="🚌")
 
-# 2. 데이터 내장 (파일 없이 작동하게 내장 데이터로 변경)
+# 2. 정확한 데이터 (기점-회차지 중심)
 data = """bus_no,first,last,route,info
-503,04:15,22:20,광명공영차고지기점-서울역버스환승센터,정류장 48개 / 거리 32.5km
-5714,04:00,23:30,독산동-이대부고,정류장 45개 / 거리 28.0km
+503,04:15,22:20,광명공영차고지-서울역버스환승센터,정류장 88개 / 거리 32.5km
+5714,04:00,23:30,광명공영차고지-신촌로터리,정류장 72개 / 거리 34.2km
 """
 df = pd.read_csv(io.StringIO(data), dtype={'bus_no': str})
 
@@ -28,20 +28,26 @@ with st.sidebar:
 st.title("🚌 통합 버스 정산 시스템")
 st.markdown("---")
 
-# 버스 번호 입력
-bus_no = st.text_input("버스 번호 입력 (예: 503)")
+# 세션 상태 초기화 (입력값 제어)
+if 'search_query' not in st.session_state: st.session_state.search_query = ""
+
+def trigger_search():
+    st.session_state.search_triggered = True
+
+# 버스 번호 입력 (엔터 기능 강화)
+bus_no = st.text_input("버스 번호 입력 (예: 503)", key="search_query", on_change=trigger_search)
 search = st.button("조회")
 
-if search:
+if search or st.session_state.get('search_triggered'):
+    st.session_state.search_triggered = False # 초기화
     res = df[df['bus_no'] == bus_no]
     
     if not res.empty:
         d = res.iloc[0]
-        # 요청하신 고정 양식 적용
         st.success(f"🚌 {bus_no}번 버스 노선 정보")
         st.markdown(f"""
-        **첫차시간:** {d['first']}  
-        **막차시간:** {d['last']}  
+        **첫차시간:** {d['first']}
+        **막차시간:** {d['last']}
         **{d['route']}**
         """)
         st.caption(f"상세 정보: {d['info']}")
