@@ -11,6 +11,30 @@ ADMIN_CODE = os.getenv("ADMIN_MASTER_CODE", "3934")
 def verify_integrity(code):
     return hashlib.sha256((code + SECRET_KEY).encode()).hexdigest()
 
+# [기사님 전용 대시보드 함수]
+def show_driver_dashboard():
+    st.success("데이터 접근 승인 완료: 운행 모드 가동")
+    bus_number = st.text_input("버스 번호 입력:")
+    if st.button("정산 전송"):
+        st.balloons()
+        st.write(f"✅ {bus_number}번 버스 정산 데이터가 기록되었습니다.")
+    
+    st.markdown("---")
+    st.subheader("🗓️ 전국 단위 확장 로드맵")
+    roadmap_data = {
+        "~6/16일": "무료배포 종료(월 요금제 도입)",
+        "~6/22일": "서울시 기차정보 및 부산 버스 정보 공지(테스트)",
+        "~6/29일": "충청/전라도 작업(테스트 및 공표)",
+        "~7/6일": "경상도/강원도 작업(테스트 및 공표)",
+        "~7/13일": "황해도, 평안도, 함경도(전국 8도 완성)",
+        "상시": "URL 추가 제작 및 추가 변경"
+    }
+    st.table(pd.DataFrame(list(roadmap_data.items()), columns=['일정', '상세 내용']))
+    
+    if st.button("로그아웃"):
+        st.session_state['bus_auth'] = False
+        st.rerun()
+
 # [전역 설정]
 st.set_page_config(page_title="통합 버스 정산 시스템", page_icon="🚌")
 
@@ -51,27 +75,7 @@ elif SYSTEM_MODE == 'SEOUL':
             else:
                 st.warning("인증 오류")
     else:
-        st.success("데이터 접근 승인 완료")
-        bus_number = st.text_input("버스 번호:")
-        if st.button("정산 확인"):
-            st.write(f"{bus_number}번 노선 정산 완료.")
-        
-        # [로드맵 섹션]
-        st.markdown("---")
-        st.subheader("🗓️ 전국 단위 확장 로드맵")
-        roadmap_data = {
-            "~6/16일": "무료배포 종료(월 요금제 도입)",
-            "~6/22일": "서울시 기차정보 및 부산 버스 정보 공지(테스트)",
-            "~6/29일": "충청/전라도 작업(테스트 및 공표)",
-            "~7/6일": "경상도/강원도 작업(테스트 및 공표)",
-            "~7/13일": "황해도, 평안도, 함경도(전국 8도 완성)",
-            "상시": "URL 추가 제작 및 추가 변경"
-        }
-        st.table(pd.DataFrame(list(roadmap_data.items()), columns=['일정', '상세 내용']))
-        
-        if st.button("로그아웃"):
-            st.session_state['bus_auth'] = False
-            st.rerun()
+        show_driver_dashboard()
 
 elif SYSTEM_MODE == 'BUSAN':
     st.title("🚌 부산 버스 정산 시스템")
