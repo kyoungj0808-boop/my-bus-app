@@ -4,7 +4,6 @@ import pandas as pd
 
 st.set_page_config(page_title="버스 시스템", page_icon="🚌")
 
-# [상태 초기화]
 if 'auth' not in st.session_state: st.session_state.auth = False
 if 'mode' not in st.session_state: st.session_state.mode = 'HOME'
 if 'admin' not in st.session_state: st.session_state.admin = False
@@ -34,20 +33,23 @@ else:
                 st.session_state.auth = True
                 st.rerun()
     else:
-        # 인증 성공 시 바로 대시보드 출력
         st.success("운행 모드 가동 중")
         bus = st.text_input("버스 번호 입력 (예: 503)")
-        if bus:
+        # [조회] 버튼을 눌러야 명확하게 결과를 출력함
+        if st.button("조회"):
             if os.path.exists("bus_data.csv"):
                 df = pd.read_csv("bus_data.csv", dtype={'bus_no': str})
                 res = df[df['bus_no'] == bus]
                 if not res.empty:
                     d = res.iloc[0]
-                    st.info(f"🚌 {bus}번 버스")
+                    st.info(f"🚌 {bus}번 버스 노선 정보")
                     st.write(f"첫차시간: {d['first']}")
                     st.write(f"막차시간: {d['last']}")
                     st.write(f"{d['route']}{d['info']}")
-                else: st.warning("데이터 없음")
+                else:
+                    st.warning("등록되지 않은 노선번호입니다.")
+            else:
+                st.error("데이터 파일을 찾을 수 없습니다.")
         
         if st.button("메인화면"):
             st.session_state.auth = False
