@@ -7,6 +7,20 @@ st.set_page_config(page_title="통합 버스 정산 시스템", page_icon="🚌"
 
 if 'bus_auth' not in st.session_state: st.session_state['bus_auth'] = False
 if 'system_mode' not in st.session_state: st.session_state['system_mode'] = 'HOME'
+if 'admin_active' not in st.session_state: st.session_state['admin_active'] = False
+
+# [사이드바: 관리자 모드 (어디서든 상시 접근 가능)]
+with st.sidebar:
+    st.title("⚙️ 관리자 서버")
+    admin_pw = st.text_input("마스터 코드", type="password")
+    if st.button("인증"):
+        if admin_pw == "3934":
+            st.session_state['admin_active'] = True
+            st.success("관리자 권한 활성화")
+    if st.session_state['admin_active']:
+        if st.button("관리자 로그아웃"):
+            st.session_state['admin_active'] = False
+            st.rerun()
 
 # [버스 정보 조회 함수]
 def get_bus_info(bus_num):
@@ -36,10 +50,6 @@ def show_dashboard():
         st.session_state['bus_auth'] = False
         st.session_state['system_mode'] = 'HOME'
         st.rerun()
-    
-    # 하단 연락처 정보 복구
-    st.markdown("---")
-    st.markdown("<div style='color: gray; font-size: 0.95em;'>🔍 @devjin_747 | 📩 kyjin0808@naver.com</div>", unsafe_allow_html=True)
 
 # [메인 제어 로직]
 if st.session_state['system_mode'] == 'HOME':
@@ -57,3 +67,8 @@ else:
                 st.rerun()
     else:
         show_dashboard()
+
+# [하단 문구 수정]
+st.markdown("---")
+st.markdown("제작 과정 및 문의")
+st.markdown("<div style='color: gray; font-size: 0.95em;'>🔍 @devjin_747 | 📩 kyjin0808@naver.com</div>", unsafe_allow_html=True)
