@@ -7,7 +7,7 @@ import pandas as pd
 SECRET_KEY = os.getenv("APP_SECRET_KEY", "BOOP_SYSTEM_747")
 ADMIN_CODE = os.getenv("ADMIN_MASTER_CODE", "3934")
 
-# [버스 데이터베이스]
+# [버스 데이터베이스 (사령관님 데이터 적출 후 이 딕셔너리에 추가/수정)]
 BUS_DATA = {
     "503": {"first": "04:15", "last": "22:20", "route": "광명공영차고지기점-서울역버스환승센터", "info": "(48/32.5km)"},
     "101": {"first": "05:00", "last": "23:00", "route": "화영운수차고지-석수역", "info": "(41/14km)"}
@@ -96,6 +96,8 @@ elif SYSTEM_MODE == 'SEOUL':
             if password == "1234":
                 st.session_state['bus_auth'] = True
                 st.rerun()
+            else:
+                st.warning("인증 오류")
     else:
         show_driver_dashboard()
 
