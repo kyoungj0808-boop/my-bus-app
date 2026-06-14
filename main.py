@@ -1,15 +1,13 @@
 import streamlit as st
 import pandas as pd
+import os
 
 st.set_page_config(page_title="버스 정보 시스템", page_icon="🚌")
 
 # 1. 데이터 로드
 df = pd.read_csv("bus_data.csv", dtype={'bus_no': str})
 
-# 402번 노선 데이터만 추출하여 정류장 목록 생성
-# 정류장 데이터가 '장지동-시청역' 처럼 되어 있다면, 
-# 실제 40개의 정류장 리스트를 CSV에 추가하면 그대로 반영됩니다.
-# 우선 현재 route 데이터를 기준으로 정류장 목록을 만듭니다.
+# 402번 등 노선 데이터 정류장 목록 생성
 stops = set()
 for route in df['route'].dropna():
     for stop in route.split('-'):
@@ -18,8 +16,9 @@ stops = sorted(list(stops))
 
 FARE_MAP = {'어린이': 550, '청소년': 900, '성인': 1500}
 
-# 2. 관리자 설정
+# 2. 관리자 설정 및 강제 종료 로직
 if 'admin' not in st.session_state: st.session_state.admin = False
+
 with st.sidebar:
     st.header("⚙️ 관리자 설정")
     pw = st.text_input("관리자 코드", type="password")
@@ -27,15 +26,23 @@ with st.sidebar:
         if pw == "3934":
             st.session_state.admin = not st.session_state.admin
             st.rerun()
+            
+    # 사령관님 요청: 현장에서 바로 배포를 멈출 수 있는 버튼
+    if st.session_state.admin:
+        st.markdown("---")
+        st.warning("⚠️ 운영자 제어 모드")
+        if st.button("🚫 무료 배포 종료 (서버 멈춤)"):
+            st.error("시스템을 강제로 종료합니다.")
+            os._exit(0) # 프로세스 즉시 종료
 
 st.title("🚌 통합 버스 정산 시스템")
 passenger_type = st.radio("요금 계산 기준:", ('어린이', '청소년', '성인'), index=2, horizontal=True)
 
-# 3. 출발/도착지 및 버스 번호 조회
+# 3. 조회 UI (402번 고정)
 col1, col2, col3 = st.columns(3)
 with col1: start_point = st.selectbox("출발지", ["선택하세요"] + stops)
 with col2: end_point = st.selectbox("도착지", ["선택하세요"] + stops)
-with col3: bus_no = st.text_input("버스 번호", value="402") # 기본값을 402로 고정
+with col3: bus_no = st.text_input("버스 번호", value="402")
 
 if st.button("조회"):
     query = df
@@ -53,6 +60,7 @@ if st.button("조회"):
     else:
         st.warning("등록된 노선 정보를 찾을 수 없습니다.")
 
-# 4. 제작자 정보 복구
+# 4. 제작자 정보 (하단 고정)
+st.markdown("---")
 st.markdown("### 제작 과정 및 문의")
 st.markdown("<div style='color: gray;'>🔍 @devjin_747 | 📩 kyjin0808@naver.com</div>", unsafe_allow_html=True)
